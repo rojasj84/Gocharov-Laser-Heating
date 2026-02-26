@@ -1,4 +1,5 @@
 import tkinter as tk
+from tkinter import ttk
 import sys
 import os
 from ipg_laser_controller import IPGLaserSerialController, IPGLaserError, HAS_PYSERIAL
@@ -19,6 +20,9 @@ try:
     HAS_PYTHONNET = True
 except ImportError:
     HAS_PYTHONNET = False
+
+if HAS_PYSERIAL:
+    import serial.tools.list_ports
 
 class AxisController:
     def __init__(self, root):
@@ -356,6 +360,14 @@ class AxisController:
         self.lbl_serial_port = tk.Label(connection_frame, text="Serial Port")
         self.lbl_serial_port.grid(row=1, column=0, sticky="w", padx=8, pady=6)
         self.ent_serial_port = tk.Entry(connection_frame, textvariable=self.laser_port_var)
+        
+        port_list = ["/dev/ttyUSB0"]
+        if HAS_PYSERIAL:
+            ports = serial.tools.list_ports.comports()
+            if ports:
+                port_list = [p.device for p in ports]
+
+        self.ent_serial_port = ttk.Combobox(connection_frame, textvariable=self.laser_port_var, values=port_list)
         self.ent_serial_port.grid(row=1, column=1, columnspan=3, sticky="ew", padx=8, pady=6)
 
         self.lbl_ip = tk.Label(connection_frame, text="IP")

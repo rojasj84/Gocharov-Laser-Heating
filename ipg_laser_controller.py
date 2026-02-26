@@ -4,6 +4,7 @@ import time
 
 try:
     import serial
+    import serial.tools.list_ports
     HAS_PYSERIAL = True
 except ImportError:
     HAS_PYSERIAL = False
@@ -308,6 +309,7 @@ class IPGLaserSerialController:
 
 def _run_standalone_test_ui():
     import tkinter as tk
+    from tkinter import ttk
 
     controller = IPGLaserSerialController()
     root = tk.Tk()
@@ -348,6 +350,14 @@ def _run_standalone_test_ui():
     lbl_serial = tk.Label(connection_frame, text="Serial Port")
     lbl_serial.grid(row=1, column=0, sticky="w", padx=6, pady=4)
     ent_serial = tk.Entry(connection_frame, textvariable=serial_port)
+    
+    port_list = ["/dev/ttyUSB0"]
+    if HAS_PYSERIAL:
+        ports = serial.tools.list_ports.comports()
+        if ports:
+            port_list = [p.device for p in ports]
+
+    ent_serial = ttk.Combobox(connection_frame, textvariable=serial_port, values=port_list)
     ent_serial.grid(row=1, column=1, columnspan=3, sticky="ew", padx=6, pady=4)
 
     lbl_ip = tk.Label(connection_frame, text="IP")
